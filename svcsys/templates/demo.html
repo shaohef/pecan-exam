@@ -1,0 +1,53 @@
+## -*- coding: utf-8 -*-
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>demo</title>
+    <script src="/javascript/jquery.js">
+    </script>
+    <script>
+        $(document).ready(function(){
+            $("button").click(function(){
+                obj = {};
+                systemIpObj = {};
+                obj.systemip = systemIpObj;
+                var host = $("#host").val();
+                var edge = $("#edge").val();
+                var sip = $("#sip").val();
+                var mcu = $("#mcu").val();
+                systemIpObj.host = host;
+                systemIpObj.edge = edge;
+                systemIpObj.sip = sip;
+                systemIpObj.mcu = mcu;
+                var params = JSON.stringify(obj);
+                alert(params);
+                $.ajax({
+                    type: "POST",
+                    cache:false,
+                    async:false,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",//返回值类型
+                    url: "http://localhost:6060",
+                    data:params,
+                    success: function(data){
+                        var resultData = '返回码='+data.status+',响应结果='+data.message+',耗时='+data.tcost;
+                        alert(resultData);
+                    },
+                    error : function(xhr, ts, et) {
+                        alert('服务调用失败!');
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+host:<input type="text" id="host">
+edge:<input type="text" id="edge">
+sip:<input type="text" id="sip">
+mcu:<input type="text" id="mcu">
+<button>submit</button>
+
+</body>
+</html>
