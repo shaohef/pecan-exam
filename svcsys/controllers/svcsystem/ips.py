@@ -31,6 +31,7 @@ class SystemIPController(rest.RestController):
         if missing:
             response.status = 400
             missings = ", ".join(missing)
+            # pecan.response.text = u'Missing these ips in the context: %s.' % missings
             return {'message': 'Missing these ips in the context: %s.' % missings}
         for cmd in CMDS:
             r, o, e = syscall(cmd, shell=True)

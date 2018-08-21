@@ -1,13 +1,16 @@
+# -*- coding: UTF-8 -*-
+# UTF-8 no need for template, we can remove it.
+
 from pecan import expose, redirect
 from webob.exc import status_map
-from svcsys.controllers.svcsystem import ips 
+from svcsys.controllers.svcsystem import ips
 
 
 class RootController(object):
 
     ips = ips.SystemIPController()
 
-    @expose(generic=True, template='index.html')
+    @expose(generic=True, template='demo.html')
     def index(self):
         return dict()
 

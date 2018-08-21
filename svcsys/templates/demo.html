@@ -36,7 +36,8 @@
                         alert(resultData);
                     },
                     error : function(xhr, ts, et) {
-                        alert('服务调用失败!');
+                        var resultData = ts+":"+et+"\n"+'返回码='+xhr.status+',响应结果='+xhr.responseText;
+                        alert('服务调用失败!\n' + resultData);
                     }
                 });
             });
