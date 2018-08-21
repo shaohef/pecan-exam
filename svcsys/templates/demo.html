@@ -11,7 +11,7 @@
             $("button").click(function(){
                 obj = {};
                 systemIpObj = {};
-                obj.systemip = systemIpObj;
+                obj.systemips = systemIpObj;
                 var host = $("#host").val();
                 var edge = $("#edge").val();
                 var sip = $("#sip").val();
@@ -21,6 +21,7 @@
                 systemIpObj.sip = sip;
                 systemIpObj.mcu = mcu;
                 var params = JSON.stringify(obj);
+                var hostname = document.location.hostname
                 alert(params);
                 $.ajax({
                     type: "POST",
@@ -28,7 +29,7 @@
                     async:false,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",//返回值类型
-                    url: "http://localhost:6060",
+                    url: "http://"+hostname+":6060/ips",
                     data:params,
                     success: function(data){
                         var resultData = '返回码='+data.status+',响应结果='+data.message+',耗时='+data.tcost;
