@@ -53,7 +53,7 @@ IPV6_PATTERN = re.compile(r"""
          |  (?<!:)              #
          |  (?<=:) (?<!::) :    #
          )                      # OR
-     |                          #   A v4 address with NO leading zeros 
+     |                          #   A v4 address with NO leading zeros
         (?:25[0-4]|2[0-4]\d|1\d\d|[1-9]?\d)
         (?: \.
             (?:25[0-4]|2[0-4]\d|1\d\d|[1-9]?\d)
