@@ -1,6 +1,7 @@
 import pecan
 from pecan import rest, response
 import subprocess
+from svcsys.common.validip import is_valid_ip
 
 
 def syscall(*args, **kwargs):
@@ -15,6 +16,14 @@ CMDS= [
 "echo 'Hello world, this is a test!'"
 ]
 
+
+# def is_valid_ip(ip):
+#     from IPy import IP
+#     try:
+#         IP(ip)
+#     except Exception as e:
+#         return False
+#     return True
 
 class SystemIPController(rest.RestController):
 
@@ -33,6 +42,10 @@ class SystemIPController(rest.RestController):
             missings = ", ".join(missing)
             # pecan.response.text = u'Missing these ips in the context: %s.' % missings
             return {'message': 'Missing these ips in the context: %s.' % missings}
+        for i in set(necessary_ips) & set(ips.keys()):
+            if not is_valid_ip(ips[i]):
+                response.status = 400
+                return {'message': 'Input invalid %s ip: %s.' % (i, ips[i])}
         for cmd in CMDS:
             r, o, e = syscall(cmd, shell=True)
             if r != 0:
