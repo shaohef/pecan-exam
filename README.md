@@ -21,10 +21,12 @@ curl -i -X POST http://localhost:6060/ips \
 -H 'Content-Type: application/json' -H "Accept: application/json" -d '
 {"systemips":  
   {  
-    "host": "127.0.0.1",  
-    "edge": "127.0.0.2",  
-    "sip": "127.0.0.3",  
-    "mcu": "127.0.0.4"  
+    "host": "172.21.0.121",  
+    "edge": "172.21.0.122",  
+    "sip": "172.21.0.123",  
+    "mcu": "172.21.0.124",  
+    "gateway": "172.21.0.1",  
+    "subnet": "172.21.0.0/24"  
 }}'
 ```
 
@@ -46,10 +48,12 @@ Content-Type: application/json
 >-H 'Content-Type: application/json' -H "Accept: application/json" -d '  
 >{"systemips":  
 >  {  
->    "host": "127.0.0.1",  
->    "edge": "127.0.0.2",  
->    "sip": "127.0.0.3",  
->    "bad": "127.0.0.4"  
+>    "host": "172.21.0.121",  
+>    "edge": "172.21.0.122",  
+>    "sip": "172.21.0.123",  
+>    "bad": "172.21.0.124",  
+>    "gateway": "172.21.0.1",  
+>    "subnet": "172.21.0.0/24"  
 >}}'
 
 
