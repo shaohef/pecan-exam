@@ -7,6 +7,35 @@
     <script src="/javascript/jquery.js">
     </script>
     <script>
+        function loadIpInput(){
+            obj = {};
+            var params = JSON.stringify(obj);
+            var hostname = document.location.hostname;
+            $.ajax({
+                type: "GET",
+                cache:false,
+                async:false,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",//返回值类型
+                url: "http://"+hostname+":6060/ips",
+                data:params,
+                success: function(data){
+                    $("#host").val(data.host);
+                    $("#edge").val(data.edge);
+                    $("#sip").val(data.sip);
+                    $("#mcu").val(data.mcu);
+                    $("#gateway").val(data.gateway);
+                    $("#subnet").val(data.subnet);
+                },
+                error : function(xhr, ts, et) {
+                }
+            });
+        }
+        $(document).ready(function(){
+            loadIpInput();
+        });
+    </script>
+    <script>
         $(document).ready(function(){
             $("button").click(function(){
                 obj = {};
@@ -25,7 +54,7 @@
                 systemIpObj.gateway = gateway;
                 systemIpObj.subnet = subnet;
                 var params = JSON.stringify(obj);
-                var hostname = document.location.hostname
+                var hostname = document.location.hostname;
                 alert(params);
                 $.ajax({
                     type: "POST",
@@ -46,6 +75,7 @@
                 });
             });
         });
+
     </script>
 </head>
 <body>
