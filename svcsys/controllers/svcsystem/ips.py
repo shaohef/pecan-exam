@@ -7,6 +7,12 @@ from svcsys.common.nicinfo import get_local_interfaces
 import json
 
 
+SIP_CONT = "svc-sipserver"
+EDGE_CONT = "svc-rtpproxy"
+CONT_MAP = {"sip": SIP_CONT, "edge": EDGE_CONT}
+DOCKER_GET_IP = 'docker inspect %s --format="{{.NetworkSettings.Networks.pub_net.IPAMConfig.IPv4Address}}"'
+
+
 def compare_network(a, b):
     try:
         return interf(u"%s" % a).network == interf(u"%s" % b).network
@@ -86,8 +92,41 @@ CREATE_CMDS = [
 class SystemIPController(rest.RestController):
 
     @pecan.expose('json')
-    def get(self):
+    def get_version(self):
         return {"api version": "1.0"}
+
+    @pecan.expose(template='json')
+    def get(self, **body):
+        ips_key = ["host", "sip", "edge", "mcu", "subnet", "gateway"]
+        ips = {}
+        with open(IPCONF_PATH, "r") as f:
+            for i in f.readlines():
+                i = i.strip("\n")
+                k, _, v = i.partition(":")
+                ip = v
+                err = False
+                if "/" in v:
+                    ip, _, pre = v.partition("/")
+                    try:
+                        ipre = int(pre)
+                        if ipre > 32:
+                            err = True
+                    except Exception as e:
+                        err = True
+                if k in ips_key and is_valid_ip(ip) and not err:
+                    ips[k] = v
+            pub_net = net_info()
+            gw = pub_net.get("Gateway")
+            ips["gateway"] = gw if gw else None
+            sn = pub_net.get("Subnet")
+            ips["subnet"] = sn if sn else None
+            r, o, e = syscall(DOCKER_GET_IP % CONT_MAP["sip"], shell=True)
+            ips["sip"] = o if is_valid_ip(o) else None
+            r, o, e = syscall(DOCKER_GET_IP % CONT_MAP["edge"], shell=True)
+            ips["edge"] = o if is_valid_ip(o) else None
+        response.status = 200
+        return ips
+
 
     @pecan.expose(template='json')
     def post(self, **body):
@@ -147,7 +186,7 @@ class SystemIPController(rest.RestController):
         with open(IPCONF_PATH, "w+") as f:
             f.writelines("\n".join(ip_content))
         pub_net = net_info()
-        if pub_net["Gateway"] != ips["gateway"] or pub_net["Subnet"] != ips["subnet"]:
+        if pub_net.get("Gateway") != ips["gateway"] or pub_net.get("Subnet") != ips["subnet"]:
             for cmd in RM_DOCKER_CMDS + RM_DOCKER_NETWOEK:
                 r, o, e = syscall(cmd, shell=True)
         create_cmds = DOCKER_NETWOEK + CREATE_CMDS if product_evn else CREATE_CMDS
