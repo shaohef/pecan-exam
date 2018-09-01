@@ -16,10 +16,14 @@
                 var edge = $("#edge").val();
                 var sip = $("#sip").val();
                 var mcu = $("#mcu").val();
+                var gateway = $("#gateway").val();
+                var subnet = $("#subnet").val();
                 systemIpObj.host = host;
                 systemIpObj.edge = edge;
                 systemIpObj.sip = sip;
                 systemIpObj.mcu = mcu;
+                systemIpObj.gateway = gateway;
+                systemIpObj.subnet = subnet;
                 var params = JSON.stringify(obj);
                 var hostname = document.location.hostname
                 alert(params);
@@ -79,6 +83,22 @@
     </td>
     <td>
       <input type="text" id="mcu" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <li> Gateway
+    </td>
+    <td>
+      <input type="text" id="gateway" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <li> Subnet
+    </td>
+    <td>
+      <input type="text" id="subnet" />
     </td>
   </tr>
 </table>
