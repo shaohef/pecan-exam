@@ -13,7 +13,8 @@ SIP_CONFIG_PATH="/sip_config/kamailio/kamailio.cfg"
 
 SIP_CONT = "svc-sipserver"
 EDGE_CONT = "svc-rtpproxy"
-CONT_MAP = {"sip": SIP_CONT, "edge": EDGE_CONT}
+MCU_CONT = "svc-mcu"
+CONT_MAP = {"sip": SIP_CONT, "edge": EDGE_CONT, "mcu": MCU_CONT}
 DOCKER_GET_IP = 'docker inspect %s --format="{{.NetworkSettings.Networks.pub_net.IPAMConfig.IPv4Address}}"'
 
 
@@ -76,8 +77,10 @@ RM_DOCKER_CMDS = [
 "echo 'Hello world, this is a test!'",
 # "docker stop svc-sipserver",
 "docker rm -f svc-sipserver",
-# "docker stop svc-rtpproxy"
-"docker rm -f svc-rtpproxy"
+# "docker stop svc-rtpproxy",
+"docker rm -f svc-rtpproxy",
+# "docker stop svc-mcu",
+"docker rm -f svc-mcu"
 ]
 
 RM_DOCKER_NETWOEK = [
@@ -92,16 +95,19 @@ INSPECT_NETWORK_CMDS = [
 INSPECT_CMDS = [
 "docker inspect svc-sipserver --format=\"{{.Name}}\"",
 "docker inspect svc-rtpproxy --format=\"{{.Name}}\"",
+"docker inspect svc-mcu --format=\"{{.Name}}\"",
 ]
 
 RUN_CMDS = [
 "docker run --name svc-sipserver --net=pub_net --ip=%(sip)s --privileged -e container=docker -v /sys/fs/cgroup:/sys/fs/cgroup sipserver:latest /usr/sbin/init &",
 "docker run --name svc-rtpproxy --net=pub_net --ip=%(edge)s --privileged -e container=docker -v /sys/fs/cgroup:/sys/fs/cgroup rtpproxxy:latest /usr/sbin/init &",
+"docker run --name svc-mcu --net=pub_net --privileged --restart always -e container=docker -v /mcu_config:/config mcu:latest /linuxrc &"
 ]
 
 CREATE_CMDS = [
 "docker create --name svc-sipserver --net=pub_net --ip=%(sip)s --privileged -e container=docker -v /sys/fs/cgroup:/sys/fs/cgroup sipserver:latest /usr/sbin/init",
 "docker create --name svc-rtpproxy --net=pub_net --ip=%(edge)s --privileged -e container=docker -v /sys/fs/cgroup:/sys/fs/cgroup rtpproxxy:latest /usr/sbin/init",
+"docker create --name svc-mcu --net=pub_net --privileged --restart always -e container=docker -v /mcu_config:/config mcu:latest /linuxrc &"
 ]
 
 # def is_valid_ip(ip):
