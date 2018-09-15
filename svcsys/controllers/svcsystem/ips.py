@@ -215,9 +215,17 @@ class SystemIPController(rest.RestController):
         with open(IPCONF_PATH, "w+") as f:
             f.writelines("\n".join(ip_content))
         pub_net = net_info()
+        cmds = []
         if pub_net.get("Gateway") != ips["gateway"] or pub_net.get("Subnet") != ips["subnet"]:
-            for cmd in RM_DOCKER_CMDS + RM_DOCKER_NETWOEK:
-                r, o, e = syscall(cmd, shell=True)
+            cmds = RM_DOCKER_CMDS + RM_DOCKER_NETWOEK
+        else:
+            if latency_ips.get("sip") != ips["sip"]:
+                cmds.append(RM_DOCKER_CMDS[1])
+            if latency_ips.get("edge") != ips["edge"]:
+                cmds.append(RM_DOCKER_CMDS[2])
+        for cmd in cmds:
+            r, o, e = syscall(cmd, shell=True)
+
         create_cmds = DOCKER_NETWOEK + CREATE_CMDS if product_evn else CREATE_CMDS
         inspect_cmds = INSPECT_NETWORK_CMDS + INSPECT_CMDS if product_evn else INSPECT_CMDS
         for i, cmd in enumerate(create_cmds):
