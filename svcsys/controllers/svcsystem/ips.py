@@ -3,14 +3,37 @@ from pecan import rest, response
 from ipaddress import ip_interface as interf
 import subprocess
 from svcsys.common.validip import is_valid_ip
+from svcsys.common.sed import sed_inplace
 from svcsys.common.nicinfo import get_local_interfaces
 import json
+
+
+SIP_CONFIG_PATH="/sip_config/kamailio/kamailio.cfg"
 
 
 SIP_CONT = "svc-sipserver"
 EDGE_CONT = "svc-rtpproxy"
 CONT_MAP = {"sip": SIP_CONT, "edge": EDGE_CONT}
 DOCKER_GET_IP = 'docker inspect %s --format="{{.NetworkSettings.Networks.pub_net.IPAMConfig.IPv4Address}}"'
+
+
+#!define ADDR_INTERNAL "172.21.0.121"
+# direction.edge="172.21.0.120" desc "Edge Server Local IP Address"
+# $var(ret)=t_relay_to_udp("172.21.0.120","5060");
+# $var(ret)=t_relay_to_tcp("172.21.0.120","5060");
+#    $var(confsrvip)="172.21.0.119";
+SIP_IP_RES = [(re.compile(r'(#!define ADDR_INTERNAL )"[\d.]{7,15}"'),
+               r'\g<1>"%(sip)s"'),
+               (re.compile(r'(direction.edge=)"[\d.]{7,15}"(.*)'),
+               r'\g<1>"%(edge)s"\g<2>'),
+               (re.compile(r'(\$var.*=t_relay_to_udp\()"[\d.]{7,15}",("\d{4,20}"\);)'),
+               r'\g<1>"%(edge)s",\g<2>'),
+               (re.compile(r'(\$var.*=t_relay_to_tcp\()"[\d.]{7,15}",("\d{4,20}"\);)'),
+               r'\g<1>"%(edge)s",\g<2>'),
+               (re.compile(r'(.*\$var\(confsrvip\)=)"[\d.]{7,15}";'),
+               r'\g<1>"%(mcu)s";'),]
+
+# ips = {"sip": "111.111.111.113", "edge": "2.2.2.2", "mcu": "3.3.3.3"}
 
 
 def compare_network(a, b):
@@ -211,5 +234,6 @@ class SystemIPController(rest.RestController):
             return {'message': "\n".join(emsg)}
             # print o
         # TODO: Create a new order, (optional) return some status data
+        sed_inplace(SIP_CONFIG_PATH, SIP_IP_RES, **ips)
         response.status = 201
         return {'status': 'POST SUCCESS!\n'}
